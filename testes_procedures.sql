@@ -1,0 +1,44 @@
+USE Universidade;
+GO
+
+/* - teste 1: matricular um aluno novo no curso ENG*/
+EXEC procMATRICULAALUNO 'MARIA', 'ENG';
+
+
+/* - teste 2: aluno aprovado (BDA)*/
+EXEC sp_CadastraNotas @MATRICULA=3, @CURSO='ENG', @MATERIA='BDA', @PERLETIVO='2026', @NOTA=8, @FALTA=2, @BIMESTRE=1;
+EXEC sp_CadastraNotas @MATRICULA=3, @CURSO='ENG', @MATERIA='BDA', @PERLETIVO='2026', @NOTA=8, @FALTA=2, @BIMESTRE=2;
+EXEC sp_CadastraNotas @MATRICULA=3, @CURSO='ENG', @MATERIA='BDA', @PERLETIVO='2026', @NOTA=8, @FALTA=2, @BIMESTRE=3;
+EXEC sp_CadastraNotas @MATRICULA=3, @CURSO='ENG', @MATERIA='BDA', @PERLETIVO='2026', @NOTA=8, @FALTA=2, @BIMESTRE=4;
+
+
+/* - teste 3: aluno em exame (PRG)*/
+EXEC sp_CadastraNotas @MATRICULA=3, @CURSO='ENG', @MATERIA='PRG', @PERLETIVO='2026', @NOTA=5, @FALTA=2, @BIMESTRE=1;
+EXEC sp_CadastraNotas @MATRICULA=3, @CURSO='ENG', @MATERIA='PRG', @PERLETIVO='2026', @NOTA=5, @FALTA=2, @BIMESTRE=2;
+EXEC sp_CadastraNotas @MATRICULA=3, @CURSO='ENG', @MATERIA='PRG', @PERLETIVO='2026', @NOTA=5, @FALTA=2, @BIMESTRE=3;
+EXEC sp_CadastraNotas @MATRICULA=3, @CURSO='ENG', @MATERIA='PRG', @PERLETIVO='2026', @NOTA=5, @FALTA=2, @BIMESTRE=4;
+
+
+/* - teste 4: lancar o exame e reprocessar */
+EXEC sp_LancaExame @MATRICULA=3, @CURSO='ENG', @MATERIA='PRG', @PERLETIVO='2026', @NOTAEXAME=7;
+
+-- corrige a nota do exame:
+EXEC sp_LancaExame @MATRICULA=3, @CURSO='ENG', @MATERIA='PRG', @PERLETIVO='2026', @NOTAEXAME=3;
+
+
+/* - teste 5: reprovacao por falta (mesmo com nota boa) */
+EXEC sp_CadastraNotas @MATRICULA=1, @CURSO='ENG', @MATERIA='BDA', @PERLETIVO='2025', @NOTA=9, @FALTA=20, @BIMESTRE=1;
+EXEC sp_CadastraNotas @MATRICULA=1, @CURSO='ENG', @MATERIA='BDA', @PERLETIVO='2025', @NOTA=9, @FALTA=20, @BIMESTRE=2;
+EXEC sp_CadastraNotas @MATRICULA=1, @CURSO='ENG', @MATERIA='BDA', @PERLETIVO='2025', @NOTA=9, @FALTA=20, @BIMESTRE=3;
+EXEC sp_CadastraNotas @MATRICULA=1, @CURSO='ENG', @MATERIA='BDA', @PERLETIVO='2025', @NOTA=9, @FALTA=20, @BIMESTRE=4;
+
+
+/* - teste 6: protecao (tem que dar erro pois a maria ta aprovada e nao precisa de exame) */
+EXEC sp_LancaExame @MATRICULA=3, @CURSO='ENG', @MATERIA='BDA', @PERLETIVO='2026', @NOTAEXAME=6;
+
+/* pra ver tudo */
+SELECT A.NOME, M.MATERIA, M.PERLETIVO, M.N1, M.N2, M.N3, M.N4, M.MEDIA,
+       M.TOTALFALTAS, M.PERCFREQ, M.NOTAEXAME, M.MEDIAFINAL, M.RESULTADO
+FROM MATRICULA M
+JOIN ALUNOS A ON A.MATRICULA = M.MATRICULA
+ORDER BY A.NOME, M.MATERIA;
